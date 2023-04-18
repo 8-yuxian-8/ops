@@ -1,4 +1,4 @@
-# #!/bin/zsh
+#!/bin/zsh
 # Author： 欲仙
 # Date：2023-03-08 11:41
 # 运维可视化脚本
@@ -26,7 +26,7 @@ function Init(){
 	Product=(MongoDB Redis ECS RDS OSS SLB CDN ACK)
 #   API分页
 	Page=(1 2 3 4 5 6 7 8 9 10)
-
+    
 ##  创建工作目录
     if [ ! -d ${Tempspace} ]; then
 		mkdir -p ${Tempspace}
@@ -37,13 +37,13 @@ function Init(){
 function AccessConfigure(){
 	case $RegionName in
 		beijing)
-			RegionId=cn-beijing
+			RegionId=cn-beijing	# 资源地域
 			RegionId_1=cn-beijing	# API请求地域
 			confname=beijing
 			Name=北京
 			;;
 		guigu)
-			RegionId=us-west-1
+			RegionId=us-west-1	# 资源地域
 			RegionId_1=cn-beijing	# API请求地域
 			confname=guigu
 			Name=硅谷
@@ -56,7 +56,7 @@ function AccessConfigure(){
 
 ### 产品判断及调用对应函数获取信息
 function GetMessage(){
-    case ${ProductName} in
+    case ${ProductName} in 
         MongoDB)
 			MongoDB
         ;;
@@ -242,7 +242,7 @@ function Redis_Message(){
 	do
 		aliyun cms DescribeMetricTop --profile ${confname} --RegionId ${RegionId} --Period 3600 --Namespace acs_kvstore --MetricName ${MetricName} --StartTime ${StartTime} --EndTime ${EndTime} --Dimensions [{"instanceId":"${InstanceId}"}] --Orderby Maximum | grep "\"Datapoints\":" | tr '{' '\n' | grep -v Datapoints | awk -F '"' '{print $17,$19,$6,$14}' | sed 's/[:,\\]//g' | sort -ru > ${Tempspace}/${ProductName}_${InstanceId}_${MetricName}.txt
 		NodeNum=`wc -l ${Tempspace}/${ProductName}_${InstanceId}_${MetricName}.txt | awk '{print $1}'`
-
+		
 		NodeTag=0
 		for ((NodeNo=1;NodeNo<=$NodeNum;NodeNo++));
 		do
@@ -370,7 +370,7 @@ function Redis_Message(){
 					CONNECT_Maximum=${redis_proc[5]}
 				fi
 			fi
-		fi
+		fi		
 	else
 		echo "错误！！！Redis节点数统计不全"
         CPU_Maximum=-1
@@ -614,7 +614,7 @@ function ACK(){
 	do
 		Cluster_Name=`cat ${Tempspace}/${ProductName}_List_${confname}.txt | grep ${Cluster_Id} | awk -F ',' '{print $3}' | sort -ru`
 		ACK_Message
-	done
+	done 
 }
 
 function Clean(){
@@ -642,4 +642,3 @@ function main(){
 main
 scp ${Workspace}/OutPut.csv op@172.16.0.128:/opt/apps/backend_realdata/files/ops.csv
 exit 0
-
